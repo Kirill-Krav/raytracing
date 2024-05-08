@@ -5,10 +5,15 @@
 class Light
 {
 public:
-    Light(const Vec &p, const float &i) : position(p), intensity(i){};
-    Vec getPosition() { return position; }
-    float getIntensity() { return intensity; }
+    Light(const Vec &p, const Vec &ac, const Vec &dc, const Vec &sc) : position(p), ambientColor(ac), diffuseColor(dc), specularColor(sc){};
+    Vec getPosition() const { return position; }
+    Vec getAmbientColor() const { return ambientColor; }
+    Vec getDiffuseColor() const { return diffuseColor; }
+    Vec getSpecularColor() const { return specularColor; }
+
 private:
     Vec position;
-    float intensity;
+    Vec ambientColor;
+    Vec diffuseColor;
+    Vec specularColor;
 };

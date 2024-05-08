@@ -1,12 +1,11 @@
 #include "sphere.hpp"
-#include <iostream>
 
 Sphere::Sphere(const Vec &c, const float &r, const Material &m) : center(c), radius(r), material(m){}
 
 bool Sphere::ray_intersect(const Vec &orig, const Vec &dir, float &t0) const{
     Vec L = center - orig;
-    float tca = L * dir;
-    float d2 = L * L - tca * tca;
+    float tca = Vec::dot(L, dir);
+    float d2 = Vec::dot(L, L) - tca * tca;
     //std::cout << radius * radius << std::endl;
     if(d2 > radius * radius){
         return false;

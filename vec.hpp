@@ -39,9 +39,9 @@ public:
         return *this;
     }
 
-    float operator*(const Vec &other) const
+    Vec operator*(const Vec &other) const
     {
-        return x() * other.x() + y() * other.y() + z() * other.z();
+        return Vec(x() * other.x(), y() * other.y(), z() * other.z());
     }
 
     Vec operator*(const float &val) const
@@ -62,6 +62,10 @@ public:
     Vec operator+(const Vec &other) const
     {
         return Vec(x() + other.x(), y() + other.y(), z() + other.z());
+    }
+    static float dot(const Vec lhs, const Vec rhs)
+    {
+        return lhs.x() * rhs.x() + lhs.y() * rhs.y() + lhs.z() * rhs.z();
     }
 
 private:
