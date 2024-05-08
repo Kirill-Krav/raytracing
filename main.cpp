@@ -7,8 +7,9 @@
 
 #include "vec.hpp"
 #include "sphere.hpp"
+#include "light.hpp"
 
-bool scene_intersect(const Vec &orig, const Vec &dir, const std::vector<Sphere> &spheres, Material &material){
+bool scene_intersect(const Vec &orig, const Vec &dir, const std::vector<Sphere> &spheres, Material &material, Vec &point, Vec &N){
     float sphereDist = std::numeric_limits<float>::max();
     for(int i = 0; i < spheres.size(); i++){
         float newSphereDist = std::numeric_limits<float>::max();
@@ -16,6 +17,8 @@ bool scene_intersect(const Vec &orig, const Vec &dir, const std::vector<Sphere> 
             if(newSphereDist < sphereDist){
                 material = spheres[i].getMaterial();
                 sphereDist = newSphereDist;
+                point = orig + dir * sphereDist;
+                N = (point - spheres[i].getCenter()).normalize();
             }
         }
     }
@@ -25,10 +28,14 @@ bool scene_intersect(const Vec &orig, const Vec &dir, const std::vector<Sphere> 
 Vec cast_ray(const Vec &orig, const Vec &dir, const std::vector<Sphere> &spheres)
 {
     Material material;
-    
-    if (scene_intersect(orig, dir, spheres, material))
+    Vec point, N;
+
+    if (scene_intersect(orig, dir, spheres, material, point, N))
     {
-        return material.getColor();
+        Light light(Vec(-20.0f, 20.0f, 20.0f), 1.5f);
+        Vec lightDir = (light.getPosition() - point).normalize();
+        float diffuse_light_intensity = light.getIntensity() * std::max(0.0f, lightDir * N);
+        return material.getColor() * diffuse_light_intensity;
     }
     else
     {

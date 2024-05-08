@@ -44,6 +44,11 @@ public:
         return x() * other.x() + y() * other.y() + z() * other.z();
     }
 
+    Vec operator*(const float &val) const
+    {
+        return Vec(x() * val, y() * val, z() * val);
+    }
+
     Vec operator/(float val) const
     {
         return Vec(x() / val, y() / val, z() / val);
@@ -52,6 +57,11 @@ public:
     Vec operator-(const Vec &other) const
     {
         return Vec(x() - other.x(), y() - other.y(), z() - other.z());
+    }
+
+    Vec operator+(const Vec &other) const
+    {
+        return Vec(x() + other.x(), y() + other.y(), z() + other.z());
     }
 
 private:

@@ -1,3 +1,5 @@
+#pragma once
+
 #include <string>
 #include "vec.hpp"
 

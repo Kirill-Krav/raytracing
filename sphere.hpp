@@ -1,3 +1,5 @@
+#pragma once
+
 #include <cmath>
 
 #include "vec.hpp"
@@ -9,6 +11,7 @@ public:
     Sphere(const Vec &c, const float &r, const Material &m);
     bool ray_intersect(const Vec &orig, const Vec &dir, float &t0) const;
     Material getMaterial() const { return material; }
+    Vec getCenter() const { return center; }
 
 private:
     Vec center;
