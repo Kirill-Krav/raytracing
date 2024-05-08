@@ -7,24 +7,15 @@ class Vec
 public:
     Vec()
     {
-        for (int i = 0; i < 4; i++)
-        {
-            data[i] = 0.0;
-        }
+        data[0] = 0.0f;
+        data[1] = 0.0f;
+        data[2] = 0.0f;
     }
     Vec(float x, float y, float z)
     {
         data[0] = x;
         data[1] = y;
         data[2] = z;
-        data[3] = 1.0;
-    }
-    Vec(float x, float y, float z, float w)
-    {
-        data[0] = x;
-        data[1] = y;
-        data[2] = z;
-        data[3] = w;
     }
     float &operator[](int i)
     {
@@ -36,8 +27,6 @@ public:
     float g() const { return data[1]; }
     float z() const { return data[2]; }
     float b() const { return data[2]; }
-    float w() const { return data[3]; }
-    float a() const { return data[3]; }
 
     float distance() const
     {
@@ -66,5 +55,5 @@ public:
     }
 
 private:
-    float data[4];
+    float data[3];
 };

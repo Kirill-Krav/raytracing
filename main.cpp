@@ -8,12 +8,27 @@
 #include "vec.hpp"
 #include "sphere.hpp"
 
-Vec cast_ray(const Vec &orig, const Vec &dir, const Sphere &sphere)
-{
+bool scene_intersect(const Vec &orig, const Vec &dir, const std::vector<Sphere> &spheres, Material &material){
     float sphereDist = std::numeric_limits<float>::max();
-    if (sphere.ray_intersect(orig, dir, sphereDist))
+    for(int i = 0; i < spheres.size(); i++){
+        float newSphereDist = std::numeric_limits<float>::max();
+        if(spheres[i].ray_intersect(orig, dir, newSphereDist)){
+            if(newSphereDist < sphereDist){
+                material = spheres[i].getMaterial();
+                sphereDist = newSphereDist;
+            }
+        }
+    }
+    return sphereDist < 1000;
+}
+
+Vec cast_ray(const Vec &orig, const Vec &dir, const std::vector<Sphere> &spheres)
+{
+    Material material;
+    
+    if (scene_intersect(orig, dir, spheres, material))
     {
-        return Vec(0.4f, 0.4f, 0.3f);
+        return material.getColor();
     }
     else
     {
@@ -21,7 +36,7 @@ Vec cast_ray(const Vec &orig, const Vec &dir, const Sphere &sphere)
     }
 }
 
-void render(const Sphere &sphere)
+void render(const std::vector<Sphere> &spheres)
 {
     const int width = 1280;
     const int height = 720;
@@ -34,9 +49,10 @@ void render(const Sphere &sphere)
             float x = (2 * (j + 0.5) / static_cast<float>(width) - 1) * tan(fov / 2.0f) * width / (float)height;
             float y = -(2 * (i + 0.5) / static_cast<float>(height) - 1) * tan(fov / 2.0f);
             Vec dir = Vec(x, y, -1.0).normalize();
-            framebuffer[i * width + j] = cast_ray(Vec(0.0f, 0.0f, 0.0f), dir, sphere);
+            framebuffer[i * width + j] = cast_ray(Vec(0.0f, 0.0f, 0.0f), dir, spheres);
         }
     }
+
     std::ofstream fout;
     fout.open("./out.ppm", std::ofstream::out | std::ofstream::binary);
     fout << "P6\n"
@@ -53,6 +69,17 @@ void render(const Sphere &sphere)
 
 int main()
 {
-    render(Sphere(Vec(-10, 5, -18), 4));
+    Material ivory(Vec(0.4f, 0.4f, 0.3f));
+    Material red_rubber(Vec(0.3, 0.1, 0.1));
+    std::vector<Sphere> spheres;
+    Sphere sphere1(Vec(-10, 5, -18), 4, ivory);
+    Sphere sphere2(Vec(0, 2, -40), 14, red_rubber);
+    Sphere sphere3(Vec(10, 5, -41), 5, ivory);
+    Sphere sphere4(Vec(4, -5, -10), 4, red_rubber);
+    spheres.push_back(sphere1);
+    spheres.push_back(sphere2);
+    spheres.push_back(sphere3);
+    spheres.push_back(sphere4);
+    render(spheres);
     return 0;
 }

@@ -1,7 +1,7 @@
 #include "sphere.hpp"
 #include <iostream>
 
-Sphere::Sphere(const Vec &c, const float &r) : center(c), radius(r){}
+Sphere::Sphere(const Vec &c, const float &r, const Material &m) : center(c), radius(r), material(m){}
 
 bool Sphere::ray_intersect(const Vec &orig, const Vec &dir, float &t0) const{
     Vec L = center - orig;
