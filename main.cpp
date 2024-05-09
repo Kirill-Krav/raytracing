@@ -26,7 +26,20 @@ bool scene_intersect(const Vec &orig, const Vec &dir, const std::vector<Sphere> 
             }
         }
     }
-    return sphereDist < 1000;
+    float checkerboard_dist = std::numeric_limits<float>::max();
+    if (fabs(dir.y()) > 1e-3)
+    {
+        float d = -(orig.y() + 4) / dir.y();
+        Vec pt = orig + dir * d;
+        if (d > 0 && fabs(pt.x()) < 10 && pt.z() < -10 && pt.z() > -30 && d < sphereDist)
+        {
+            checkerboard_dist = d;
+            point = pt;
+            N = Vec(0, 1, 0);
+            material.setDiffuseColor((int(.5 * point.x() + 1000) + int(.5 * point.z())) & 1 ? Vec(0.3, 0.3, 0.3) : Vec(0.3, 0.21, 0.09));
+        }
+    }
+    return std::min(sphereDist, checkerboard_dist) < 1000;
 }
 
 Vec reflect(const Vec &I, const Vec &N)
@@ -34,17 +47,20 @@ Vec reflect(const Vec &I, const Vec &N)
     return N * 2.f * Vec::dot(I, N) - I;
 }
 
-Vec refract(const Vec &I, const Vec &N, const float &refractive_index) {
-    float cosi = std::max(-1.f, std::min(1.f, Vec::dot(I,N * -1.0)));
+Vec refract(const Vec &I, const Vec &N, const float &refractive_index)
+{
+    float cosi = std::max(-1.f, std::min(1.f, Vec::dot(I, N * -1.0)));
     float etai = 1, etat = refractive_index;
     Vec n = N;
-    if (cosi < 0) { 
+    if (cosi < 0)
+    {
         cosi = -cosi;
-        std::swap(etai, etat); n = N * -1.0;
+        std::swap(etai, etat);
+        n = N * -1.0;
     }
     float eta = etai / etat;
-    float k = 1 - eta*eta*(1 - cosi*cosi);
-    return k < 0 ? Vec(0,0,0) : I*eta + n*(eta * cosi - sqrtf(k));
+    float k = 1 - eta * eta * (1 - cosi * cosi);
+    return k < 0 ? Vec(0, 0, 0) : I * eta + n * (eta * cosi - sqrtf(k));
 }
 
 Vec cast_ray(const Vec &orig, const Vec &dir, const std::vector<Sphere> &spheres, const std::vector<Light> &lights, int depth = 0)
@@ -58,7 +74,7 @@ Vec cast_ray(const Vec &orig, const Vec &dir, const std::vector<Sphere> &spheres
         Vec reflect_dir = reflect(dir * -1.0, N).normalize();
         Vec refract_dir = refract(dir, N, material.getRefractiveIndex()).normalize();
         Vec reflect_orig = Vec::dot(reflect_dir, N) < 0 ? point - N * 1e-3 : point + N * 1e-3;
-        Vec refract_orig = Vec::dot(refract_dir, N) < 0 ? point - N*1e-3 : point + N*1e-3;
+        Vec refract_orig = Vec::dot(refract_dir, N) < 0 ? point - N * 1e-3 : point + N * 1e-3;
         Vec reflect_color = cast_ray(reflect_orig, reflect_dir, spheres, lights, depth + 1);
         Vec refract_color = cast_ray(refract_orig, refract_dir, spheres, lights, depth + 1);
         for (int i = 0; i < lights.size(); i++)
@@ -88,7 +104,7 @@ void render(const std::vector<Sphere> &spheres, const std::vector<Light> &lights
 {
     const int width = 1280;
     const int height = 720;
-    const float fov = acos(-1) / 2.0f;
+    const float fov = acos(-1) / 3.0f;
     std::vector<Vec> framebuffer(height * width);
     for (int i = 0; i < height; i++)
     {
@@ -130,18 +146,18 @@ int main()
                     Vec(10.0, 10.0, 10.0),
                     1428.0, 0.8, 0.0, 1.0);
     Material glass(Vec(0.0, 0.0, 0.0),
-                    Vec(0.0, 0.0, 0.0),
-                    Vec(0.5, 0.5, 0.5),
-                    125.0, 0.1, 0.8, 1.5);
+                   Vec(0.0, 0.0, 0.0),
+                   Vec(0.5, 0.5, 0.5),
+                   125.0, 0.1, 0.8, 1.5);
     std::vector<Sphere> spheres;
-    // spheres.push_back(Sphere(Vec(-3.0f, 0.0f, -16.0f), 2.0f, gold));
-    // spheres.push_back(Sphere(Vec(-1.0f, -1.5f, -12.0f), 2.0f, glass));
-    // spheres.push_back(Sphere(Vec(1.5f, -0.5f, -18.0f), 3.0f, ruby));
-    // spheres.push_back(Sphere(Vec(7.0f, 5.0f, -18.0f), 4.0f, mirror));
-    spheres.push_back(Sphere(Vec(-10, 5, -18), 4, mirror));
-    spheres.push_back(Sphere(Vec(0, 2, -40), 14, ruby));
-    spheres.push_back(Sphere(Vec(16, 5, -41), 9, gold));
-    spheres.push_back(Sphere(Vec(4, -3, -10), 4, glass));
+    spheres.push_back(Sphere(Vec(-3.0f, 0.0f, -16.0f), 2.0f, gold));
+    spheres.push_back(Sphere(Vec(-1.0f, -1.5f, -12.0f), 2.0f, glass));
+    spheres.push_back(Sphere(Vec(1.5f, -0.5f, -18.0f), 3.0f, ruby));
+    spheres.push_back(Sphere(Vec(7.0f, 5.0f, -18.0f), 4.0f, mirror));
+    // spheres.push_back(Sphere(Vec(-10, 5, -18), 4, mirror));
+    // spheres.push_back(Sphere(Vec(0, 2, -40), 14, ruby));
+    // spheres.push_back(Sphere(Vec(16, 5, -41), 9, gold));
+    // spheres.push_back(Sphere(Vec(4, -3, -10), 4, glass));
     std::vector<Light> lights;
     lights.push_back(Light(Vec(-20.0f, 20.0f, 20.0f),
                            Vec(0.2f, 0.2f, 0.2f),

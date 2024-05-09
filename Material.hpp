@@ -10,6 +10,7 @@ public:
     Material() : ambientColor(), diffuseColor(), specularColor(), shininess(), reflection(), refraction(), refractiveIndex() {}
     Vec getAmbientColor() { return ambientColor; }
     Vec getDiffuseColor() { return diffuseColor; }
+    void setDiffuseColor(Vec dc) { diffuseColor = dc; }
     Vec getSpecularColor() { return specularColor; }
     float getShininess() { return shininess; }
     float getReflection() { return reflection; }
